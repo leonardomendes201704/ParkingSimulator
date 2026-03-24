@@ -1,0 +1,355 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg: #0c111a;
+  --panel: rgba(12, 17, 26, 0.92);
+  --panel-border: rgba(124, 153, 190, 0.24);
+  --accent: #5fc8ff;
+  --accent-strong: #88f0c7;
+  --text: #e8efff;
+  --text-muted: #99a9c7;
+  --warning: #ffbf69;
+  --shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+  --radius: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(95, 200, 255, 0.12), transparent 24%),
+    radial-gradient(circle at 80% 10%, rgba(136, 240, 199, 0.09), transparent 20%),
+    linear-gradient(180deg, #111826 0%, #0b1018 100%);
+  color: var(--text);
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  min-height: 100vh;
+}
+
+.viewport-shell {
+  min-width: 0;
+  padding: 18px;
+}
+
+.canvas-viewport {
+  position: relative;
+  height: calc(100vh - 36px);
+  overflow: auto;
+  border-radius: 28px;
+  border: 1px solid rgba(116, 142, 175, 0.28);
+  background:
+    linear-gradient(180deg, rgba(13, 20, 31, 0.95), rgba(8, 13, 21, 0.98)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+  box-shadow: var(--shadow);
+}
+
+.canvas-mount {
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.canvas-mount canvas {
+  display: block;
+}
+
+.hud-overlay {
+  pointer-events: none;
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+}
+
+.hud-card {
+  width: min(320px, calc(50% - 8px));
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(114, 145, 187, 0.22);
+  background: rgba(10, 16, 24, 0.78);
+  backdrop-filter: blur(10px);
+}
+
+.hud-card-right {
+  margin-left: auto;
+}
+
+.hud-title {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: var(--accent);
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hud-content {
+  display: grid;
+  gap: 6px;
+  color: var(--text-muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.83rem;
+}
+
+.hud-content strong {
+  color: var(--text);
+}
+
+.control-panel {
+  padding: 22px;
+  border-left: 1px solid rgba(117, 145, 182, 0.22);
+  background: var(--panel);
+  backdrop-filter: blur(18px);
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 700;
+}
+
+h1 {
+  font-size: 1.8rem;
+  line-height: 1.05;
+}
+
+h2 {
+  font-size: 1rem;
+}
+
+.panel-copy {
+  margin: 14px 0 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.status-pill {
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(153, 169, 199, 0.12);
+  border: 1px solid rgba(153, 169, 199, 0.18);
+  white-space: nowrap;
+}
+
+.status-pill.running {
+  color: #07141d;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  border-color: transparent;
+}
+
+.status-pill.paused {
+  color: var(--warning);
+}
+
+.panel-section {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--panel-border);
+  background: linear-gradient(180deg, rgba(18, 27, 40, 0.8), rgba(10, 16, 24, 0.88));
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+button,
+select,
+input[type="number"] {
+  border-radius: 14px;
+  border: 1px solid rgba(120, 151, 191, 0.2);
+  background: rgba(8, 14, 22, 0.74);
+  color: var(--text);
+}
+
+button {
+  min-height: 44px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+button:hover,
+select:hover,
+input[type="number"]:hover {
+  border-color: rgba(135, 181, 231, 0.4);
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button.primary {
+  background: linear-gradient(135deg, var(--accent), #3da9ff);
+  color: #051019;
+  border-color: transparent;
+  font-weight: 700;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.field-grid label,
+.slider-group,
+.toggle {
+  display: grid;
+  gap: 8px;
+}
+
+.field-grid span,
+.slider-group label,
+.toggle span {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+select,
+input[type="number"] {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+}
+
+.toggle-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.toggle {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.slider-group {
+  margin-top: 14px;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.value-badge {
+  justify-self: start;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--text);
+  background: rgba(95, 200, 255, 0.14);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.83rem;
+}
+
+.helper-text {
+  margin: 12px 0 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.queue-display {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.queue-item {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(120, 151, 191, 0.16);
+  background: rgba(10, 16, 24, 0.66);
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.queue-item strong {
+  color: var(--text);
+}
+
+@media (max-width: 1200px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .control-panel {
+    border-left: 0;
+    border-top: 1px solid rgba(117, 145, 182, 0.22);
+  }
+
+  .canvas-viewport {
+    height: 68vh;
+  }
+}
+
+@media (max-width: 720px) {
+  .viewport-shell,
+  .control-panel {
+    padding: 14px;
+  }
+
+  .field-grid,
+  .button-row {
+    grid-template-columns: 1fr;
+  }
+
+  .hud-overlay {
+    flex-direction: column;
+  }
+
+  .hud-card {
+    width: 100%;
+  }
+}

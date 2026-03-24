@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Garagem 2D</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <main class="viewport-shell">
+      <div id="canvasViewport" class="canvas-viewport">
+        <div id="canvasMount" class="canvas-mount"></div>
+        <div class="hud-overlay">
+          <section class="hud-card">
+            <span class="hud-title">Medidas</span>
+            <div id="measureDisplay" class="hud-content"></div>
+          </section>
+          <section class="hud-card hud-card-right">
+            <span class="hud-title">Telemetria</span>
+            <div id="telemetryDisplay" class="hud-content"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <aside class="control-panel">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">PixiJS + JavaScript puro</p>
+          <h1>Simulador de Garagem 2D</h1>
+        </div>
+        <div id="statusPill" class="status-pill paused">Pausado</div>
+      </div>
+
+      <p class="panel-copy">
+        Fluxo com modelo cinemático de veículo, curva de 90 graus, vagas perpendiculares,
+        fila automática e controle manual por teclado.
+      </p>
+
+      <section class="panel-section">
+        <h2>Controles</h2>
+        <div class="button-row">
+          <button id="startButton" class="primary">Iniciar simulação</button>
+          <button id="departButton">Sair e ir embora</button>
+          <button id="pauseButton">Pausar</button>
+          <button id="resetButton">Resetar tudo</button>
+          <button id="resetCarButton">Resetar carro</button>
+        </div>
+        <div class="field-grid">
+          <label>
+            <span>Modo</span>
+            <select id="modeSelect">
+              <option value="auto">Automático</option>
+              <option value="manual">Manual</option>
+            </select>
+          </label>
+          <label>
+            <span>Perfil do veículo</span>
+            <select id="vehicleSelect"></select>
+          </label>
+        </div>
+        <div class="toggle-grid">
+          <label class="toggle">
+            <input type="checkbox" id="trailToggle" checked>
+            <span>Mostrar trajetória</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="envelopeToggle">
+            <span>Mostrar envelope</span>
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="debugToggle">
+            <span>Modo debug</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <h2>Velocidade e escala</h2>
+        <div class="slider-group">
+          <label for="simSpeedRange">Velocidade da simulação</label>
+          <input type="range" id="simSpeedRange" min="0.4" max="2.5" step="0.1">
+          <span id="simSpeedValue" class="value-badge"></span>
+        </div>
+        <div class="slider-group">
+          <label for="scaleRange">Escala visual</label>
+          <input type="range" id="scaleRange" min="28" max="70" step="1">
+          <span id="scaleValue" class="value-badge"></span>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <h2>Geometria da garagem</h2>
+        <div class="field-grid">
+          <label>
+            <span>Largura da via (m)</span>
+            <input type="number" id="laneWidthInput" min="2.8" max="5.5" step="0.1">
+          </label>
+          <label>
+            <span>Largura da área de manobra (m)</span>
+            <input type="number" id="maneuverWidthInput" min="4.5" max="9.0" step="0.1">
+          </label>
+          <label>
+            <span>Largura da vaga (m)</span>
+            <input type="number" id="spotWidthInput" min="2.3" max="4.5" step="0.1">
+          </label>
+          <label>
+            <span>Profundidade da vaga (m)</span>
+            <input type="number" id="spotDepthInput" min="4.5" max="7.5" step="0.1">
+          </label>
+        </div>
+      </section>
+
+      <section class="panel-section compact">
+        <h2>Controles do modo manual</h2>
+        <p class="helper-text">
+          Use <strong>W/S</strong> ou <strong>setas</strong> para acelerar e dar ré,
+          <strong>A/D</strong> para esterçar e <strong>Espaço</strong> para frear.
+        </p>
+        <div id="queueDisplay" class="queue-display"></div>
+      </section>
+    </aside>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.4.2/pixi.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/geometry.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/car.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/simulation.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
