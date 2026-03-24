@@ -32,6 +32,7 @@ window.ParkingSim = window.ParkingSim || {};
       this.surfaceLayer = new PIXI.Graphics();
       this.spotLayer = new PIXI.Container();
       this.guideLayer = new PIXI.Graphics();
+      this.annotationLayer = new PIXI.Container();
       this.trailLayer = new PIXI.Container();
       this.envelopeLayer = new PIXI.Container();
       this.carLayer = new PIXI.Container();
@@ -41,6 +42,7 @@ window.ParkingSim = window.ParkingSim || {};
       this.root.addChild(this.surfaceLayer);
       this.root.addChild(this.spotLayer);
       this.root.addChild(this.guideLayer);
+      this.root.addChild(this.annotationLayer);
       this.root.addChild(this.trailLayer);
       this.root.addChild(this.envelopeLayer);
       this.root.addChild(this.carLayer);
@@ -56,7 +58,7 @@ window.ParkingSim = window.ParkingSim || {};
       this.scale = scale;
       this.resize();
       this.drawBackgroundGrid();
-      this.drawLayout();
+      this.drawLayout(options);
     }
 
     resize() {
@@ -85,12 +87,14 @@ window.ParkingSim = window.ParkingSim || {};
       }
     }
 
-    drawLayout() {
+    drawLayout(options) {
       if (!this.layout) return;
       const layout = this.layout;
+      const visuals = options || {};
       this.surfaceLayer.clear();
       this.spotLayer.removeChildren();
       this.guideLayer.clear();
+      this.annotationLayer.removeChildren();
 
       this.surfaceLayer.beginFill(colors.asphalt, 1);
       this.surfaceLayer.drawRect(layout.aisleRect.x, layout.aisleRect.y, layout.aisleRect.width, layout.aisleRect.height);
@@ -136,6 +140,9 @@ window.ParkingSim = window.ParkingSim || {};
       this.drawCenterGuides();
       this.drawEntryArrow();
       this.drawSpots();
+      if (visuals.showEnvelope) {
+        this.drawArcConstruction();
+      }
     }
 
     drawCenterGuides() {
@@ -156,6 +163,47 @@ window.ParkingSim = window.ParkingSim || {};
       this.guideLayer.lineTo(arrow.to.x - 0.22, arrow.to.y + 0.34);
       this.guideLayer.moveTo(arrow.to.x, arrow.to.y);
       this.guideLayer.lineTo(arrow.to.x + 0.22, arrow.to.y + 0.34);
+    }
+
+    drawArcConstruction() {
+      const guides = this.layout.getArcGuides();
+      guides.forEach((guide, index) => {
+        const accentColor = index === 0 ? colors.laneGuide : colors.entryArrow;
+        this.drawDashedCircle(this.guideLayer, guide.center, guide.radius, 0.05, accentColor, 0.42, 0.45, 0.24);
+
+        this.guideLayer.lineStyle(0.05, accentColor, 0.8);
+        this.guideLayer.moveTo(guide.center.x, guide.center.y);
+        this.guideLayer.lineTo(guide.radiusTo.x, guide.radiusTo.y);
+        this.guideLayer.beginFill(accentColor, 0.95);
+        this.guideLayer.drawCircle(guide.center.x, guide.center.y, 0.09);
+        this.guideLayer.endFill();
+
+        const midPoint = Geometry.midpoint(guide.center, guide.radiusTo);
+        const radiusLabel = new PIXI.Text(`R = ${guide.radius.toFixed(2)} m`, {
+          fill: tintToHex(accentColor),
+          fontFamily: NS.Config.fonts.mono,
+          fontSize: 0.3 * this.scale,
+          fontWeight: "700"
+        });
+        radiusLabel.anchor.set(0.5);
+        radiusLabel.position.set(
+          midPoint.x + (guide.labelOffset ? guide.labelOffset.x : 0),
+          midPoint.y + (guide.labelOffset ? guide.labelOffset.y : 0)
+        );
+        radiusLabel.scale.set(1 / this.scale);
+        this.annotationLayer.addChild(radiusLabel);
+
+        const centerLabel = new PIXI.Text(guide.label, {
+          fill: "#d9e4f5",
+          fontFamily: NS.Config.fonts.ui,
+          fontSize: 0.24 * this.scale,
+          fontWeight: "600"
+        });
+        centerLabel.anchor.set(0.5, 1.2);
+        centerLabel.position.set(guide.center.x, guide.center.y);
+        centerLabel.scale.set(1 / this.scale);
+        this.annotationLayer.addChild(centerLabel);
+      });
     }
 
     drawSpots() {
@@ -200,6 +248,33 @@ window.ParkingSim = window.ParkingSim || {};
           graphics.lineTo(start.x + dx * dashEnd, start.y + dy * dashEnd);
           traveled += dashLength + gapLength;
         }
+      }
+    }
+
+    drawDashedCircle(graphics, center, radius, lineWidth, color, alpha, dashArcLength, gapArcLength) {
+      graphics.lineStyle(lineWidth, color, alpha);
+      const circumference = Math.PI * 2 * radius;
+      let traveled = 0;
+
+      while (traveled < circumference) {
+        const startLength = traveled;
+        const endLength = Math.min(circumference, traveled + dashArcLength);
+        const startAngle = startLength / radius;
+        const endAngle = endLength / radius;
+        const steps = Math.max(2, Math.ceil((endAngle - startAngle) / 0.12));
+
+        for (let index = 0; index <= steps; index += 1) {
+          const angle = Geometry.lerp(startAngle, endAngle, index / steps);
+          const x = center.x + Math.cos(angle) * radius;
+          const y = center.y + Math.sin(angle) * radius;
+          if (index === 0) {
+            graphics.moveTo(x, y);
+          } else {
+            graphics.lineTo(x, y);
+          }
+        }
+
+        traveled += dashArcLength + gapArcLength;
       }
     }
 

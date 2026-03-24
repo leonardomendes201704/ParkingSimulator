@@ -349,7 +349,7 @@ window.ParkingSim = window.ParkingSim || {};
       if (
         !this.autoPlan ||
         !this.autoPlan.finalPose ||
-        (this.state !== "ALIGNING" && this.state !== "ENTERING_SPOT" && this.state !== "FINAL_ALIGN")
+        this.state !== "ENTERING_SPOT"
       ) {
         return false;
       }
@@ -357,7 +357,8 @@ window.ParkingSim = window.ParkingSim || {};
       const target = this.autoPlan.finalPose;
       const source = pose || this;
       const distanceToTarget = Geometry.distance(source, target);
-      return distanceToTarget < 1.75 && source.y > this.layout.spots[this.targetSpotIndex].y - 0.2;
+      const headingError = Math.abs(Geometry.shortestAngleDiff(target.heading, source.heading));
+      return distanceToTarget < 0.16 && headingError < 0.05;
     }
 
     startSettling(startPose, targetPose, completionState) {

@@ -161,6 +161,8 @@ window.ParkingSim = window.ParkingSim || {};
           y: laneTop + s.approachLength - 3.5
         }
       };
+
+      this.arcGuides = this.buildArcGuides();
     }
 
     clearOccupancy() {
@@ -208,28 +210,62 @@ window.ParkingSim = window.ParkingSim || {};
       ]);
     }
 
+    buildArcGuides() {
+      const entryGuide = {
+        id: "entry-turn",
+        label: "Curva de entrada",
+        center: this.dimensions.turnCenter,
+        radius: this.dimensions.turnRadius,
+        radiusTo: this.dimensions.turnStart,
+        labelOffset: { x: -0.55, y: -0.3 }
+      };
+      const exitGuides = this.spots.map((spot) => {
+        const sweepRadius = this.vehicle.minTurningRadius + 0.08;
+        const exitForward = {
+          x: this.exitRect.x + 0.9,
+          y: spot.center.y
+        };
+        const turnCenter = {
+          x: exitForward.x,
+          y: exitForward.y + sweepRadius
+        };
+
+        return {
+          id: `exit-turn-${spot.id}`,
+          label: `Saida vaga ${spot.number}`,
+          center: turnCenter,
+          radius: sweepRadius,
+          radiusTo: exitForward,
+          labelOffset: { x: 0.3, y: -0.35 }
+        };
+      });
+
+      return [entryGuide].concat(exitGuides);
+    }
+
+    getArcGuides() {
+      return this.arcGuides || [];
+    }
+
     buildAutoPlan(spotIndex, spawnPose) {
       const spot = this.spots[spotIndex];
-      const approachOffset = 0.85;
-      const alignmentLaneY = spot.center.y + approachOffset;
-      const stagingPoint = {
-        x: Math.max(this.dimensions.turnEnd.x + 2.2, spot.x - 0.65),
-        y: alignmentLaneY
+      const capturePose = {
+        x: spot.x - 1.1,
+        y: spot.center.y
       };
-      const alignmentPath = spotIndex === 0
-        ? Geometry.sampleLine(this.dimensions.turnEnd, stagingPoint, 0.24)
-        : Geometry.stitchPaths([
-            Geometry.sampleLine(
-              this.dimensions.turnEnd,
-              { x: this.dimensions.turnEnd.x + 0.45, y: alignmentLaneY },
-              0.2
-            ),
-            Geometry.sampleLine(
-              { x: this.dimensions.turnEnd.x + 0.45, y: alignmentLaneY },
-              stagingPoint,
-              0.2
-            )
-          ]);
+      const alignmentPath = Geometry.sampleCubicBezier(
+        this.dimensions.turnEnd,
+        {
+          x: this.dimensions.turnEnd.x + 1.45,
+          y: this.dimensions.turnEnd.y
+        },
+        {
+          x: capturePose.x - 1.6,
+          y: capturePose.y
+        },
+        capturePose,
+        0.18
+      );
       const finalRearAxle = {
         x: spot.x + spot.width - (this.vehicle.wheelBase + this.vehicle.frontOverhang) - 0.25,
         y: spot.center.y
@@ -268,17 +304,24 @@ window.ParkingSim = window.ParkingSim || {};
           },
           ALIGNING: {
             path: alignmentPath,
-            targetSpeed: 1.15,
-            lookAhead: 0.95,
-            endTolerance: 0.18,
+            targetSpeed: 0.95,
+            lookAhead: 0.78,
+            endTolerance: 0.2,
             desiredHeading: 0,
+            assistPose: {
+              x: capturePose.x,
+              y: capturePose.y,
+              heading: 0
+            },
+            assistDistance: 1.9,
+            assistNext: "ENTERING_SPOT",
             next: "ENTERING_SPOT"
           },
           ENTERING_SPOT: {
-            path: Geometry.sampleLine(stagingPoint, finalRearAxle, 0.14),
-            targetSpeed: 0.82,
-            lookAhead: 0.72,
-            endTolerance: 0.12,
+            path: Geometry.sampleLine(capturePose, finalRearAxle, 0.12),
+            targetSpeed: 0.62,
+            lookAhead: 0.46,
+            endTolerance: 0.08,
             desiredHeading: 0,
             stopAtEnd: true,
             next: "PARKED"
